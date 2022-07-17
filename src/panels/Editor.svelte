@@ -3,7 +3,11 @@
   import Title from "../components/Title.svelte";
   import { namedNode, quad } from "../rdfun/Datafactory";
   import { rdf, x } from "../main";
-  import { createClass, getLabel } from "../RDFapi";
+  import { createClass, getLabel, getLabelTriple } from "../RDFapi";
+import AttachClass from "$lib/AttachClass.svelte";
+import Class from "$lib/Class.svelte";
+import Property from "$lib/Property.svelte";
+import Literal from "$lib/Literal.svelte";
 
   export let ciri;
   export let dataset;
@@ -22,7 +26,7 @@
   let relations = [];
   let markdown = namedNode("empty");
 
-  $: classes = [...dataset.match(ciri, rdf.type)];
+  $: classes = [...dataset.match(ciri, rdf.type)].map(quad => quad.object);
   $: isClass = [...dataset.match(null, rdf.type, ciri)]?.length;
   $: classInstances = [
     ...new Set([...dataset.match(null, rdf.type, ciri)].map((quad) => quad.subject.value))
@@ -51,46 +55,23 @@
   <div class="h-full px-8 {nestLevel == 0 ? 'py-5' : 'py-2'} flex flex-col gap-2">
     {#if nestLevel == 0}
       <h2 class="text-6xl">
-        <Title bind:ciri />
+        <Title bind:ciri propQuad={getLabelTriple(ciri)} />
       </h2>
     {/if}
     <ul class="px-0 flex justify-center flex-wrap gap-2">
-      {#each classes as w, i}
-        <li
-          on:click={() => (ciri = w.object)}
-          class={`rounded-xl px-2 bg-red-300 cursor-pointer inline-block shadow capitalize`}
-        >
-          {getLabel(w.object)}
-        </li>
+      {#each classes as classNode, i}
+        <Class bind:ciri {classNode} ></Class>
       {/each}
-      <li
-        class={`rounded-xl px-2 bg-white cursor-pointer inline-block shadow`}
-        on:click={() => {
-          // TODO: check if class exists
-          const label = prompt("label of the new Class?");
-          const classIRI = createClass(label);
-          dataset.addQuads([quad(ciri, rdf.type, classIRI, x.Data)]);
-          ciri = ciri;
-        }}
-      >
-        + add Class
-      </li>
+      <AttachClass bind:ciri></AttachClass>
     </ul>
     <details open>
       <summary>Attributes</summary>
       <ul class="list-inside list-disc mx-5">
         {#each propertys as propQuad}
-          {#if !propQuad.predicate.value.includes("label")}
-            <li class="">
-              <span>
-                <span
-                  on:click={() => (ciri = propQuad.predicate)}
-                  class={`px-1 mr-2 bg-sky-200 cursor-pointer before:content-["-"] after:content-[">"]`}
-                >
-                  {getLabel(propQuad.predicate)}
-                </span>
-                <span class="text-orange-400">{`"${propQuad.object.value}"`}</span>
-              </span>
+          {#if !propQuad.predicate.value.includes("labesl")}
+            <li class="flex items-start gap-3 ">
+                <Property bind:ciri property={propQuad.predicate}></Property>
+                <Title bind:ciri {propQuad} att></Title>
               <select name="" id="">
                 <option value="Text" default>Text</option>
                 <option value="Number">Number</option>
@@ -197,7 +178,7 @@
         </ul>
       </details>
       <details open>
-        <summary>"Subjects"</summary>
+        <summary>Subjects</summary>
         <ul class="mx-0.5  gap-1 list-inside list-disc ">
           {#each propSubs as w}
             <li>
@@ -209,7 +190,7 @@
         </ul>
       </details>
       <details open>
-        <summary>"Objects"</summary>
+        <summary>Objects</summary>
         <ul class="mx-0.5 gap-1 list-inside list-disc ">
           {#each propObjs as w}
             <li>
@@ -221,7 +202,7 @@
         </ul>
       </details>
     {/if}
-    {#if classes.some((quad) => quad.object.equals(x.Block))}
+    {#if classes.some((classNode) => classNode.equals(x.Block))}
       <details open>
         <summary>Notes</summary>
         <!-- {#each children as childQuad} -->

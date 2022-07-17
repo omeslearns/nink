@@ -19,7 +19,7 @@
 
 <aside
   id="Sidebar"
-  class="bg-neutral-200 px-5 py-5 grid content-start gap-5 col-span-15 row-span-full order-2 rounded-md overflow-auto"
+  class="bg-neutral-200 px-5 py-5 grid gap-5 col-span-15 row-span-full order-2 rounded-md overflow-auto"
 >
   <header>
     <label class="inline-block" for="graph-select">Graph: </label>
@@ -58,6 +58,19 @@
       {/each}
     </ul>
   </details>
+  <details open>
+    <summary class="pb-1 cursor-pointer text-xl">🗒 All Notes</summary>
+    <ul class="pl-3 flex flex-wrap gap-1">
+      {#each classes as classLabelTriple, i}
+        <li
+          on:click={() => (ciri = classLabelTriple.subject)}
+          class={`rounded-xl px-2 bg-red-300 cursor-pointer inline-block shadow capitalize`}
+        >
+          {classLabelTriple.object.value}
+        </li>
+      {/each}
+    </ul>
+  </details>
   <details id="Classes" open>
     <summary class="pb-1 cursor-pointer text-xl">🗂 Classes</summary>
     <ul class="pl-3 flex flex-wrap gap-1">
@@ -71,6 +84,7 @@
       {/each}
     </ul>
   </details>
+  
   <details id="Relationships" open>
     <summary class="pb-1 cursor-pointer text-xl">🔗 Relationships</summary>
     <ul class="pl-3 flex flex-wrap gap-1">
@@ -88,6 +102,11 @@
     on:click={() => {
       ciri = createNode("untitled");
     }}
-    class="border rounded-lg border-green-500 place-self-end">New Node</button
+    class="flex px-3 h-8 justify-between items-center border rounded-lg bg-white "
   >
+    New Node
+    <kbd class="font-sans font-semibold dark:text-slate-500">
+      <abbr title="Command" class="no-underline text-slate-300 dark:text-slate-500">⌘</abbr> N
+    </kbd>
+  </button>
 </aside>

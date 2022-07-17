@@ -9,7 +9,7 @@ export function attachRelation(s, p, o) {
 }
 
 export function createIri() {
-  return namedNode(`http://example.org/node_${Math.random().toFixed(5) * 100000}`);
+  return namedNode(`http://example.org/node_${Number(Math.random().toFixed(5)) * 100000}`);
 }
 export function createLabelTriple(namedNode, label = namedNode.value.split(/\/|#/).at(-1)) {
   const labelTriple = quad(namedNode, rdfs.label, literal(label));
